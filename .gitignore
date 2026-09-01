@@ -1,0 +1,16 @@
+# Server dependencies
+server/node_modules/
+
+# Environment variables
+server/.env
+.env
+
+# Compiled output
+server/dist/
+
+# OS files
+.DS_Store
+
+# Uploaded files (local dev storage)
+server/uploads/*
+!server/uploads/.gitkeep
