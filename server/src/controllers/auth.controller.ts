@@ -38,7 +38,7 @@ export async function register(req: Request, res: Response) {
 export async function login(req: Request, res: Response) {
   logger.debug('login called');
   const { email, password } = validateLogin(req.body);
-  const user = await  await User.findOne({ email, deletedAt: null });
+  const user = await User.findOne({ email, deletedAt: null });
   if (!user || !(await user.comparePassword(password))) {
     throw new AppError(401, 'Invalid email or password');
   }

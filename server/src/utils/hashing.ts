@@ -1,4 +1,4 @@
-import bcyrpt from 'bcrypt';
+import bcrypt from 'bcrypt';
 import logger from './logger.js';
 import { SALT_ROUNDS } from '../config/constants.js';
 
@@ -6,7 +6,7 @@ import crypto from 'crypto';
 
 export async function hashPassword(plainPassword: string): Promise<string> {
   logger.debug('hashPassword called');
-  return bcyrpt.hash(plainPassword, SALT_ROUNDS);
+  return bcrypt.hash(plainPassword, SALT_ROUNDS);
 }
 
 export async function comparePassword(
@@ -14,7 +14,7 @@ export async function comparePassword(
   hashedPassword: string
 ): Promise<boolean> {
   logger.debug('comparePassword called');
-  return bcyrpt.compare(plainPassword, hashedPassword);
+  return bcrypt.compare(plainPassword, hashedPassword);
 }
 
 export function generateRawToken(): string {

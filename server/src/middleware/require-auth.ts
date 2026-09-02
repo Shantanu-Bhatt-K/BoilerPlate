@@ -10,12 +10,11 @@ export function requireAuth() {
   }
   return function (req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer')) {
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return next(new AppError(401, 'Missing or invalid Authorization header'));
     }
 
    const token = authHeader.slice('Bearer '.length);
-    logger.warn(`Token received, length: ${token.length}`);
 
     try {
     req.user = verifyAccessToken(token);

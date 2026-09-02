@@ -25,7 +25,7 @@ const envSchema = z.object({
       'JWT_EXPIRES_IN must be a valid duration like "15m", "1h", "7d"'
     )
     .default('15m'),
-  REFRESH_TOKEN_EXPIRY_DAYS: z.coerce.number().default(30),
+  REFRESH_TOKEN_EXPIRY_DAYS: z.coerce.number().int().positive().default(30),
   ADMIN_EMAIL: z.string().optional(),
   ADMIN_PASSWORD: z.string().optional(),
 });
