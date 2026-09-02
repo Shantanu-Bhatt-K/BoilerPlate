@@ -20,7 +20,7 @@ export async function register(req: Request, res: Response) {
     throw new AppError(403, 'Public registration is disabled');
   }
   const { email, password } = validateRegister(req.body);
-  const existingUser =  await User.findOne({ email });
+  const existingUser = await User.findOne({ email });
   if (!existingUser) {
     const newUser = new User({ email, passwordHash: password });
     await newUser.save();

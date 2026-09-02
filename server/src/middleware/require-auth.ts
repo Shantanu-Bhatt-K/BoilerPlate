@@ -14,14 +14,14 @@ export function requireAuth() {
       return next(new AppError(401, 'Missing or invalid Authorization header'));
     }
 
-   const token = authHeader.slice('Bearer '.length);
+    const token = authHeader.slice('Bearer '.length);
 
     try {
-    req.user = verifyAccessToken(token);
-    next();
+      req.user = verifyAccessToken(token);
+      next();
     } catch (err) {
-    logger.warn({ err }, 'Token verification failed');
-    next(new AppError(401, 'Invalid or expired token'));
+      logger.warn({ err }, 'Token verification failed');
+      next(new AppError(401, 'Invalid or expired token'));
     }
   };
 }

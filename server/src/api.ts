@@ -6,7 +6,6 @@ import mongoose from 'mongoose';
 import { IncomingMessage, ServerResponse } from 'http';
 import { createRequire } from 'module';
 
-
 const require = createRequire(import.meta.url);
 const pinoHttp = require('pino-http');
 
@@ -22,7 +21,7 @@ import {
   RATE_LIMIT_WINDOW_MS,
   RATE_LIMIT_MAX_REQUESTS,
   BODY_SIZE_LIMIT,
-  SHUTDOWN_TIMEOUT_MS
+  SHUTDOWN_TIMEOUT_MS,
 } from './config/constants.js';
 const app = express();
 
@@ -72,9 +71,11 @@ connectDB().then(async () => {
     });
 
     setTimeout(() => {
-      logger.error('Could not close connections in time, forcefully shutting down');
+      logger.error(
+        'Could not close connections in time, forcefully shutting down'
+      );
       process.exit(1);
-    },SHUTDOWN_TIMEOUT_MS);
+    }, SHUTDOWN_TIMEOUT_MS);
   }
 
   process.on('SIGINT', () => gracefulShutdown('SIGINT'));

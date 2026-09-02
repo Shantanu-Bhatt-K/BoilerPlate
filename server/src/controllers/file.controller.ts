@@ -3,6 +3,9 @@ import * as storage from '../utils/storage/index.js';
 import logger from '../utils/logger.js';
 import { AppError } from '../utils/app-error.js';
 import { sendResponse } from '../utils/send-response.js';
+import { validateFilename } from '../validators/file.validator.js';
+import { lookup as lookupMimeType } from 'mime-types';
+import { env } from '../config/env.js';
 
 export async function uploadFiles(req: Request, res: Response) {
   logger.debug('uploadFiles called');
@@ -61,7 +64,7 @@ export async function deleteFile(
 ) {
   logger.debug('deleteFile called');
 
-  const { filename } = req.params;
+  const { filename } = validateFilename(req.params);
 
   await storage.deleteFile(filename);
 
@@ -75,10 +78,29 @@ export async function restoreFile(
 ) {
   logger.debug('restoreFile called');
 
-  const { filename } = req.params;
+  const { filename } = validateFilename(req.params);
 
   await storage.restoreFile(filename);
 
   logger.info(`File restored: ${filename}`);
   sendResponse(res, 200, 'File restored');
+}
+
+export async function getFile(
+  req: Request<{ filename: string }>,
+  res: Response
+) {
+  logger.debug('getFile called');
+
+  if (env.STORAGE_DRIVER !== 'local') {
+    throw new AppError(404, 'Not found');
+  }
+
+  const { filename } = validateFilename(req.params);
+
+  const buffer = await storage.readFile(filename);
+  const contentType = lookupMimeType(filename) || 'application/octet-stream';
+
+  res.setHeader('Content-Type', contentType);
+  res.send(buffer);
 }

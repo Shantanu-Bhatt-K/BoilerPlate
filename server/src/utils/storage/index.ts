@@ -8,3 +8,4 @@ export const saveFile = driver.saveFile;
 export const deleteFile = driver.deleteFile;
 export const restoreFile = driver.restoreFile;
 export const getFileUrl = driver.getFileUrl;
+export const readFile = driver.readFile;

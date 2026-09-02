@@ -2,9 +2,22 @@ import fs from 'fs/promises';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import logger from '../logger.js';
+import { AppError } from '../app-error.js';
 
 const UPLOAD_DIR = path.resolve('uploads');
 const DELETED_DIR = path.join(UPLOAD_DIR, 'deleted');
+
+function assertInside(dir: string, filename: string) {
+  const resolved = path.resolve(dir, filename);
+  if (!resolved.startsWith(path.resolve(dir) + path.sep)) {
+    throw new AppError(400, 'Invalid filename');
+  }
+}
+
+function resolveInside(dir: string, filename: string): string {
+  assertInside(dir, filename);
+  return path.resolve(dir, filename);
+}
 
 export async function saveFile(
   buffer: Buffer,
@@ -14,7 +27,7 @@ export async function saveFile(
 
   const ext = path.extname(originalName);
   const filename = `${randomUUID()}${ext}`;
-  const filePath = path.join(UPLOAD_DIR, filename);
+  const filePath = resolveInside(UPLOAD_DIR, filename);
 
   await fs.writeFile(filePath, buffer);
 
@@ -26,21 +39,28 @@ export async function deleteFile(filename: string): Promise<void> {
 
   await fs.mkdir(DELETED_DIR, { recursive: true });
 
-  const sourcePath = path.join(UPLOAD_DIR, filename);
-  const backupPath = path.join(DELETED_DIR, filename);
+  const sourcePath = resolveInside(UPLOAD_DIR, filename);
+  const backupPath = resolveInside(DELETED_DIR, filename);
 
   await fs.rename(sourcePath, backupPath);
 }
 
 export async function getFileUrl(filename: string): Promise<string> {
-  return `/uploads/${filename}`;
+  assertInside(UPLOAD_DIR, filename);
+  return `/api/files/${filename}`;
 }
-
 export async function restoreFile(filename: string): Promise<void> {
   logger.debug('restoreFile called');
 
-  const backupPath = path.join(DELETED_DIR, filename);
-  const restoredPath = path.join(UPLOAD_DIR, filename);
+  const backupPath = resolveInside(DELETED_DIR, filename);
+  const restoredPath = resolveInside(UPLOAD_DIR, filename);
 
   await fs.rename(backupPath, restoredPath);
+}
+
+export async function readFile(filename: string): Promise<Buffer> {
+  logger.debug('readFile (local) called');
+
+  const filePath = resolveInside(UPLOAD_DIR, filename);
+  return fs.readFile(filePath);
 }

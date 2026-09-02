@@ -9,7 +9,10 @@ import {
   deleteAccount,
 } from '../controllers/auth.controller.js';
 
-import { AUTH_RATE_LIMIT_WINDOW_MS, AUTH_RATE_LIMIT_MAX_REQUESTS } from '../config/constants.js';
+import {
+  AUTH_RATE_LIMIT_WINDOW_MS,
+  AUTH_RATE_LIMIT_MAX_REQUESTS,
+} from '../config/constants.js';
 
 const router = Router();
 
@@ -20,7 +23,7 @@ const authLimiter = rateLimit({
   skipSuccessfulRequests: true,
 });
 
-router.post('/auth/register',authLimiter, register);
+router.post('/auth/register', authLimiter, register);
 router.post('/auth/login', authLimiter, login);
 router.post('/auth/refresh', refresh);
 router.post('/auth/logout', logout);

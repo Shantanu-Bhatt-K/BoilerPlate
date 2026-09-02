@@ -6,6 +6,7 @@ import {
   uploadFiles,
   deleteFile,
   restoreFile,
+  getFile,
 } from '../controllers/file.controller.js';
 
 const router = Router();
@@ -18,5 +19,5 @@ router.post(
 );
 router.delete('/files/:filename', deleteFile);
 router.post('/files/:filename/restore', restoreFile);
-
+router.get('/files/:filename', getFile);
 export default router;

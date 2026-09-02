@@ -10,6 +10,7 @@ const refreshTokenSchema = new mongoose.Schema(
     tokenHash: {
       type: String,
       required: true,
+      unique: true,
     },
     userAgent: {
       type: String,
@@ -33,7 +34,8 @@ const refreshTokenSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
+refreshTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+refreshTokenSchema.index({ user: 1 });
 const RefreshToken = mongoose.model('RefreshToken', refreshTokenSchema);
 
 export default RefreshToken;
