@@ -3,6 +3,8 @@ import path from 'path';
 import { randomUUID } from 'crypto';
 import logger from '../logger.js';
 import { AppError } from '../app-error.js';
+import { extension as mimeExtension } from 'mime-types';
+
 
 const UPLOAD_DIR = path.resolve('uploads');
 const DELETED_DIR = path.join(UPLOAD_DIR, 'deleted');
@@ -21,11 +23,11 @@ function resolveInside(dir: string, filename: string): string {
 
 export async function saveFile(
   buffer: Buffer,
-  originalName: string
+  mimeType: string
 ): Promise<string> {
   logger.debug('saveFile called');
 
-  const ext = path.extname(originalName);
+  const ext = mimeExtension(mimeType) || 'bin';
   const filename = `${randomUUID()}${ext}`;
   const filePath = resolveInside(UPLOAD_DIR, filename);
 

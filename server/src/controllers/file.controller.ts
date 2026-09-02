@@ -18,7 +18,7 @@ export async function uploadFiles(req: Request, res: Response) {
 
   const results = await Promise.allSettled(
     files.map(async (file) => {
-      const filename = await storage.saveFile(file.buffer, file.originalname);
+      const filename = await storage.saveFile(file.buffer, file.mimetype);
       return { filename, url: await storage.getFileUrl(filename) };
     })
   );
@@ -50,7 +50,7 @@ export async function uploadFile(req: Request, res: Response) {
 
   const filename = await storage.saveFile(
     req.file.buffer,
-    req.file.originalname
+    req.file.mimetype
   );
   const url = await storage.getFileUrl(filename);
 
@@ -100,7 +100,7 @@ export async function getFile(
 
   const buffer = await storage.readFile(filename);
   const contentType = lookupMimeType(filename) || 'application/octet-stream';
-
   res.setHeader('Content-Type', contentType);
+  res.setHeader('Content-Disposition', 'attachment');
   res.send(buffer);
 }

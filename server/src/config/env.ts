@@ -15,8 +15,8 @@ const envSchema = z.object({
   S3_BUCKET: z.string().optional(),
   S3_REGION: z.string().optional(),
   S3_ENDPOINT: z.string().optional(),
-  AUTH_ENABLED: z.coerce.boolean().default(false),
-  PUBLIC_REGISTRATION_ENABLED: z.coerce.boolean().default(false),
+  AUTH_ENABLED: z.stringbool().default(false),
+  PUBLIC_REGISTRATION_ENABLED: z.stringbool().default(false),
   JWT_SECRET: z.string().optional(),
   JWT_EXPIRES_IN: z
     .string()

@@ -6,12 +6,12 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { randomUUID } from 'crypto';
-import path from 'path';
 import { getS3Client } from '../../config/s3.js';
 import { env } from '../../config/env.js';
 import logger from '../logger.js';
 import { PRESIGNED_URL_EXPIRY_SECONDS } from '../../config/constants.js';
 import { AppError } from '../app-error.js';
+import { extension as mimeExtension } from 'mime-types';
 
 function assertSafeKey(key: string): void {
   if (key.includes('/') || key.includes('\\') || key.includes('..')) {
@@ -21,12 +21,12 @@ function assertSafeKey(key: string): void {
 
 export async function saveFile(
   buffer: Buffer,
-  originalName: string
+  mimeType: string
 ): Promise<string> {
   logger.debug('saveFile (s3) called');
 
-  const ext = path.extname(originalName);
-  const key = `${randomUUID()}${ext}`;
+  const ext = mimeExtension(mimeType) || 'bin';
+  const key = `${randomUUID()}.${ext}`;
 
   await getS3Client().send(
     new PutObjectCommand({
