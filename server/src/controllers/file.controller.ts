@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import * as storage from '../utils/storage/index.js';
 import logger from '../utils/logger.js';
+import { AppError } from '../utils/app-error.js';
+import { sendResponse } from '../utils/send-response.js';
 
 export async function uploadFiles(req: Request, res: Response) {
   logger.debug('uploadFiles called');
@@ -8,14 +10,13 @@ export async function uploadFiles(req: Request, res: Response) {
   const files = req.files as Express.Multer.File[] | undefined;
 
   if (!files || files.length === 0) {
-    logger.warn('uploadFiles: no files provided in request');
-    return res.status(400).json({ error: 'No files provided' });
+    throw new AppError(400, 'No files provided');
   }
 
   const results = await Promise.allSettled(
     files.map(async (file) => {
       const filename = await storage.saveFile(file.buffer, file.originalname);
-      return { filename, url:  await storage.getFileUrl(filename) };
+      return { filename, url: await storage.getFileUrl(filename) };
     })
   );
 
@@ -34,30 +35,24 @@ export async function uploadFiles(req: Request, res: Response) {
     logger.info(`Batch upload: ${uploaded.length} files uploaded`);
   }
 
-  res.status(201).json({ uploaded, failedCount: failed });
+  sendResponse(res, 201, 'Files processed', { uploaded, failedCount: failed });
 }
 
 export async function uploadFile(req: Request, res: Response) {
   logger.debug('uploadFile called');
 
   if (!req.file) {
-    logger.warn('uploadFile: no file provided in request');
-    return res.status(400).json({ error: 'No file provided' });
+    throw new AppError(400, 'No file provided');
   }
 
-  try {
-    const filename = await storage.saveFile(
-      req.file.buffer,
-      req.file.originalname
-    );
-    const url = await storage.getFileUrl(filename);
+  const filename = await storage.saveFile(
+    req.file.buffer,
+    req.file.originalname
+  );
+  const url = await storage.getFileUrl(filename);
 
-    logger.info(`File uploaded: ${filename}`);
-    res.status(201).json({ filename, url });
-  } catch (err) {
-    logger.error(err, 'Failed to save file');
-    res.status(500).json({ error: 'Failed to save file' });
-  }
+  logger.info(`File uploaded: ${filename}`);
+  sendResponse(res, 201, 'File uploaded successfully', { filename, url });
 }
 
 export async function deleteFile(
@@ -68,15 +63,10 @@ export async function deleteFile(
 
   const { filename } = req.params;
 
-  try {
-    await storage.deleteFile(filename);
+  await storage.deleteFile(filename);
 
-    logger.info(`File deleted: ${filename}`);
-    res.json({ message: 'File deleted' });
-  } catch (err) {
-    logger.error(err, 'Failed to delete file');
-    res.status(404).json({ error: 'File not found' });
-  }
+  logger.info(`File deleted: ${filename}`);
+  sendResponse(res, 200, 'File deleted');
 }
 
 export async function restoreFile(
@@ -87,12 +77,8 @@ export async function restoreFile(
 
   const { filename } = req.params;
 
-  try {
-    await storage.restoreFile(filename);
-    logger.info(`File restored: ${filename}`);
-    res.json({ message: 'File restored' });
-  } catch (err) {
-    logger.error(err, 'Failed to restore file');
-    res.status(404).json({ error: 'File not found in backup' });
-  }
+  await storage.restoreFile(filename);
+
+  logger.info(`File restored: ${filename}`);
+  sendResponse(res, 200, 'File restored');
 }

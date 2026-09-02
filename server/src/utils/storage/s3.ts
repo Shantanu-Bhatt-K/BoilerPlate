@@ -12,7 +12,10 @@ import { env } from '../../config/env.js';
 import logger from '../logger.js';
 import { PRESIGNED_URL_EXPIRY_SECONDS } from '../../config/constants.js';
 
-export async function saveFile(buffer: Buffer, originalName: string): Promise<string> {
+export async function saveFile(
+  buffer: Buffer,
+  originalName: string
+): Promise<string> {
   logger.debug('saveFile (s3) called');
 
   const ext = path.extname(originalName);
@@ -79,5 +82,7 @@ export async function getFileUrl(key: string): Promise<string> {
     Key: key,
   });
 
-  return getSignedUrl(getS3Client(), command, { expiresIn: PRESIGNED_URL_EXPIRY_SECONDS });
+  return getSignedUrl(getS3Client(), command, {
+    expiresIn: PRESIGNED_URL_EXPIRY_SECONDS,
+  });
 }
