@@ -28,7 +28,7 @@ export async function saveFile(
   logger.debug('saveFile called');
 
   const ext = mimeExtension(mimeType) || 'bin';
-  const filename = `${randomUUID()}${ext}`;
+  const filename = `${randomUUID()}.${ext}`;
   const filePath = resolveInside(UPLOAD_DIR, filename);
 
   await fs.writeFile(filePath, buffer);
