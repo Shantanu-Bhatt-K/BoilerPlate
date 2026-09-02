@@ -2,11 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-
 import { IncomingMessage, ServerResponse } from 'http';
 import { createRequire } from 'module';
+import { initS3 } from './config/s3.js';
+
 const require = createRequire(import.meta.url);
 const pinoHttp = require('pino-http');
+
 import { env } from './config/env.js';
 import { connectDB } from './config/db.js';
 import routes from './routes/index.js';
@@ -48,6 +50,8 @@ app.use('/api', routes);
 
 app.use(notFound);
 app.use(errorHandler);
+
+initS3();
 
 connectDB().then(() => {
   app.listen(env.PORT, () => {

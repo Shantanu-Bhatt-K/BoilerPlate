@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { randomUUID } from 'crypto';
-import logger from './logger.js';
+import logger from '../logger.js';
 
 const UPLOAD_DIR = path.resolve('uploads');
 const DELETED_DIR = path.join(UPLOAD_DIR, 'deleted');
@@ -32,7 +32,7 @@ export async function deleteFile(filename: string): Promise<void> {
   await fs.rename(sourcePath, backupPath);
 }
 
-export function getFileUrl(filename: string): string {
+export async function getFileUrl(filename: string): Promise<string> {
   return `/uploads/${filename}`;
 }
 

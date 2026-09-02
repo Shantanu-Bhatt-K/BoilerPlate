@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import * as storage from '../utils/storage.js';
+import * as storage from '../utils/storage/index.js';
 import logger from '../utils/logger.js';
 
 export async function uploadFiles(req: Request, res: Response) {
@@ -15,7 +15,7 @@ export async function uploadFiles(req: Request, res: Response) {
   const results = await Promise.allSettled(
     files.map(async (file) => {
       const filename = await storage.saveFile(file.buffer, file.originalname);
-      return { filename, url: storage.getFileUrl(filename) };
+      return { filename, url:  await storage.getFileUrl(filename) };
     })
   );
 
@@ -50,7 +50,7 @@ export async function uploadFile(req: Request, res: Response) {
       req.file.buffer,
       req.file.originalname
     );
-    const url = storage.getFileUrl(filename);
+    const url = await storage.getFileUrl(filename);
 
     logger.info(`File uploaded: ${filename}`);
     res.status(201).json({ filename, url });

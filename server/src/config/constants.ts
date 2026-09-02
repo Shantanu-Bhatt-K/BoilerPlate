@@ -7,3 +7,4 @@ export const RATE_LIMIT_MAX_REQUESTS = 100;
 
 export const BODY_SIZE_LIMIT = '10mb';
 export const MAX_FILES_PER_UPLOAD = 10;
+export const PRESIGNED_URL_EXPIRY_SECONDS = 3600; // 1 hour
