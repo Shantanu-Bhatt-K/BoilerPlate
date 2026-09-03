@@ -1,7 +1,49 @@
 # BoilerPlate
 
 A full-stack starting point: an Express + TypeScript backend and an Expo (React Native) mobile client, so new projects don't start from zero.
+## Starting a new project from this boilerplate
 
+Don't use GitHub's "Use this template" button. It cuts the shared history, which
+is what makes later updates possible. Clone instead.
+
+Create an empty repo on GitHub first, then:
+
+```bash
+git clone git@github.com:Shantanu-Bhatt-K/BoilerPlate.git my-new-app
+cd my-new-app
+
+git remote rename origin boilerplate                              # source
+git remote add origin git@github.com:Shantanu-Bhatt-K/my-new-app.git   # yours
+git push -u origin master
+```
+
+`master` now holds the boilerplate, untouched. Branch off for actual work:
+
+```bash
+git checkout -b dev
+git push -u origin dev
+```
+
+Do the setup steps below on `dev`. Never commit project code to `master`.
+
+### Pulling boilerplate updates later
+
+```bash
+git checkout master
+git fetch boilerplate
+git merge boilerplate/master      # fast-forward, cannot conflict
+git push origin master
+
+git checkout dev
+git merge master                  # conflicts, if any, appear here
+```
+
+Splitting it into two merges keeps `master` a clean mirror of the boilerplate.
+If the second merge goes badly, `git merge --abort` puts `dev` back untouched.
+
+Branch names must match. This repo uses `master`; GitHub creates new repos with
+`main` by default. Mismatching them causes "src refspec does not match any" on
+the first push.
 ## Stack
 
 - **Backend:** Node.js, Express 5, TypeScript, MongoDB (Mongoose 9)
