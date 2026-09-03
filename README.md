@@ -6,39 +6,145 @@ A full-stack starting point: an Express + TypeScript backend and an Expo (React 
 Don't use GitHub's "Use this template" button. It cuts the shared history, which
 is what makes later updates possible. Clone instead.
 
-Needs the GitHub CLI once per machine:
+**One-time, per machine**
 
 ```bash
 sudo apt install gh        # or: brew install gh
 gh auth login              # choose SSH when asked for the protocol
 ```
 
-Then per project:
+**1. Clone and wire up the remotes**
 
 ```bash
+cd ~/projects              # keep it on the Linux filesystem, not /mnt/c
 git clone git@github.com:Shantanu-Bhatt-K/BoilerPlate.git my-new-app
 cd my-new-app
 
-gh repo create my-new-app --private --source=. --remote=origin
-```
-
-`--source=.` tells `gh` the repo already exists locally, so it creates the empty
-GitHub repo and adds it as a remote in one step. But the clone already gave the
-name `origin` to the boilerplate, so free it first:
-
-```bash
 git remote rename origin boilerplate
 gh repo create my-new-app --private --source=. --remote=origin
 git push -u origin master
 ```
 
-Check both are set:
+The rename has to come first, or `gh repo create` fails with "remote origin
+already exists". Check both remotes landed:
 
 ```bash
 git remote -v
 # boilerplate  git@github.com:Shantanu-Bhatt-K/BoilerPlate.git
 # origin       git@github.com:Shantanu-Bhatt-K/my-new-app.git
 ```
+
+**2. Branch off**
+
+```bash
+git checkout -b dev
+git push -u origin dev
+```
+
+`master` stays a clean mirror of the boilerplate. All project work happens on
+`dev`. Never commit project code to `master`.
+
+**3. Install**
+
+```bash
+cd server && npm install
+cd ../client && npm install
+```
+
+**4. Create `server/.env`**
+
+Variable names are case-sensitive.
+
+```
+MONGODB_URI=mongodb+srv://<user>:<pass>@cluster0.xxxxx.mongodb.net/<db-name>?retryWrites=true&w=majority
+PORT=5000
+NODE_ENV=development
+
+# "local" or "s3"
+STORAGE_DRIVER=local
+
+# Only needed when STORAGE_DRIVER=s3
+S3_ACCESS_KEY_ID=
+S3_SECRET_ACCESS_KEY=
+S3_BUCKET=
+S3_REGION=auto
+S3_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
+
+# Auth
+AUTH_ENABLED=true
+PUBLIC_REGISTRATION_ENABLED=true
+JWT_SECRET=
+JWT_EXPIRES_IN=15m
+REFRESH_TOKEN_EXPIRY_DAYS=30
+ADMIN_EMAIL=you@example.com
+ADMIN_PASSWORD=<a strong password>
+```
+
+Generate a fresh secret for every project. Reusing one means a token minted by
+one project validates against another.
+
+```bash
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+```
+
+For real AWS instead of R2: drop `S3_ENDPOINT` and set `S3_REGION` to a real
+region such as `eu-west-2`. No code changes. `auto` is not a valid AWS region.
+
+The two boolean flags are parsed with `z.stringbool()`, which accepts
+`true`/`false`, `1`/`0`, `yes`/`no`, `on`/`off`, case-insensitively. Anything
+else throws at startup rather than being silently coerced. An empty value also
+throws, so delete unused lines rather than blanking them.
+
+**5. Rename**
+
+- Database name in `MONGODB_URI`
+- `name` and `slug` in `client/app.json`
+- `name` in `server/package.json` and `client/package.json`
+
+**6. Adjust what the project allows**
+
+- `config/constants.ts` for file size limits, allowed MIME types, rate limits
+- `PUBLIC_REGISTRATION_ENABLED=false` if there is no public signup
+
+**7. Run it**
+
+```bash
+cd server && npm run dev
+cd client && npx expo start --tunnel
+```
+
+Use `--tunnel` from the start on WSL2. It sits behind a virtual network adapter
+your phone can't route to, so a plain QR code usually won't connect.
+
+**8. Add your own features**
+
+Follow the existing pattern. `auth.*` and `file.*` are the templates.
+
+1. Model in `models/`
+2. Validator in `validators/`
+3. Controller in `controllers/`
+4. Routes in `routes/`, then register the file in `routes/index.ts`
+5. Protect routes inline: `router.post('/x', requireAuth(), requireRole('admin'), handler)`
+
+## Pulling boilerplate updates later
+
+```bash
+git checkout master
+git fetch boilerplate
+git merge boilerplate/master      # fast-forward, cannot conflict
+git push origin master
+
+git checkout dev
+git merge master                  # conflicts, if any, appear here
+```
+
+Two merges rather than one keeps `master` a clean mirror. The first can never
+conflict because `master` has no commits of its own. If the second goes badly,
+`git merge --abort` puts `dev` back untouched.
+
+Branch names must match. This repo uses `master`; GitHub creates new repos with
+`main` by default. Mismatching them causes "src refspec does not match any" on
+the first push.
 
 ## Stack
 
