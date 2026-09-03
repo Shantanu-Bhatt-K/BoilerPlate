@@ -6,44 +6,40 @@ A full-stack starting point: an Express + TypeScript backend and an Expo (React 
 Don't use GitHub's "Use this template" button. It cuts the shared history, which
 is what makes later updates possible. Clone instead.
 
-Create an empty repo on GitHub first, then:
+Needs the GitHub CLI once per machine:
+
+```bash
+sudo apt install gh        # or: brew install gh
+gh auth login              # choose SSH when asked for the protocol
+```
+
+Then per project:
 
 ```bash
 git clone git@github.com:Shantanu-Bhatt-K/BoilerPlate.git my-new-app
 cd my-new-app
 
-git remote rename origin boilerplate                              # source
-git remote add origin git@github.com:Shantanu-Bhatt-K/my-new-app.git   # yours
+gh repo create my-new-app --private --source=. --remote=origin
+```
+
+`--source=.` tells `gh` the repo already exists locally, so it creates the empty
+GitHub repo and adds it as a remote in one step. But the clone already gave the
+name `origin` to the boilerplate, so free it first:
+
+```bash
+git remote rename origin boilerplate
+gh repo create my-new-app --private --source=. --remote=origin
 git push -u origin master
 ```
 
-`master` now holds the boilerplate, untouched. Branch off for actual work:
+Check both are set:
 
 ```bash
-git checkout -b dev
-git push -u origin dev
+git remote -v
+# boilerplate  git@github.com:Shantanu-Bhatt-K/BoilerPlate.git
+# origin       git@github.com:Shantanu-Bhatt-K/my-new-app.git
 ```
 
-Do the setup steps below on `dev`. Never commit project code to `master`.
-
-### Pulling boilerplate updates later
-
-```bash
-git checkout master
-git fetch boilerplate
-git merge boilerplate/master      # fast-forward, cannot conflict
-git push origin master
-
-git checkout dev
-git merge master                  # conflicts, if any, appear here
-```
-
-Splitting it into two merges keeps `master` a clean mirror of the boilerplate.
-If the second merge goes badly, `git merge --abort` puts `dev` back untouched.
-
-Branch names must match. This repo uses `master`; GitHub creates new repos with
-`main` by default. Mismatching them causes "src refspec does not match any" on
-the first push.
 ## Stack
 
 - **Backend:** Node.js, Express 5, TypeScript, MongoDB (Mongoose 9)
